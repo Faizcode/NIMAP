@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,28 +27,29 @@ public class ProductController {
     private ProductService ps;
 
     @GetMapping
-    public List<Product> allProducts(@RequestParam(defaultValue = "2") int page,
-    @RequestParam(defaultValue= "10") int size) {
-        return ps.findAll(page, size);  // This returns paginated data
+    public ResponseEntity<List<Product>> gettingAllProductFromDatabase(@RequestParam(defaultValue = "2") int page,
+    @RequestParam(defaultValue= "2") int size) {
+        List<Product> listProduct = ps.gettingAllProduct(page, size);
+        return ResponseEntity.ok(listProduct);
     }
 
     @GetMapping("/{di}")
-    public Optional<Product>  byIdProdcuts(@PathVariable long di){
-        return ps.findByID(di);
+    public Product gettingProductByIdFromDatabase(@PathVariable long di){
+        return ps.gettingProductById(di);
     }
 
     @PostMapping
-    public String addNewProducts(@RequestBody Product product){
-        return ps.addProduct(product);
+    public Product addingNewProductIntoDatabase(@RequestBody Product product){
+        return ps.addingProduct(product);
     }
 
     @PutMapping("/{di}")
-    public Product updateProducts(@PathVariable long di, @RequestBody Product product){
-        return ps.updateProduct(di, product);
+    public Product updatingProductIntoDatabase(@PathVariable long di, @RequestBody Product product){
+        return ps.updatingProduct(di, product);
     }
 
     @DeleteMapping("/{di}")
-    public void deleteProducts(@PathVariable long di){
-        ps.deleteProduct(di);
+    public String deletingProductFromDatabase(@PathVariable long di){
+       return ps.deletingProduct(di);
     }
 }

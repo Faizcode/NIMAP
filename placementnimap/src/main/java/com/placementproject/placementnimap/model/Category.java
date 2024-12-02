@@ -22,14 +22,19 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="category_id")
     private long categoryId;
-
-    @Column(name = "category_name", nullable=false, length = 100)
     private String categoryName;
 
-    @OneToMany(mappedBy="category", cascade=CascadeType.PERSIST, fetch=FetchType.LAZY)
+    @OneToMany(mappedBy="category", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     @JsonManagedReference
     private List<Product> productList;
 
+    public Category() {
+    }
+    public Category(long categoryId, String categoryName, List<Product> productList) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.productList = productList;
+    }
 
     public long getCategoryId() {
         return categoryId;
@@ -49,19 +54,9 @@ public class Category {
     public void setProductList(List<Product> productList) {
         this.productList = productList;
     }
-
-    public Category() {
-    }
-    public Category(long categoryId, String categoryName, List<Product> productList) {
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-        this.productList = productList;
-    }
     @Override
     public String toString() {
         return "Category [categoryId=" + categoryId + ", categoryName=" + categoryName + ", productList=" + productList
                 + "]";
     }
-
-
 }

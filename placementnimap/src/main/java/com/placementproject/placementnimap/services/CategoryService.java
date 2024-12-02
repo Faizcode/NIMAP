@@ -1,58 +1,62 @@
 package com.placementproject.placementnimap.services;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.placementproject.placementnimap.model.Category;
 import com.placementproject.placementnimap.repository.CategoryRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class CategoryService {
     
     @Autowired
     private CategoryRepository cr;
 
-    public Page<Category> findAllCat(int page, int size){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("category_id"));
-        Page<Category> result = cr.findAll(pageable);
-        if (result.isEmpty()) {
-    throw new RuntimeException("No categories found!");
-}
-       System.out.println("Page content: " + result.getContent());
-       return result;
+    public List<Category> findingAllCategpry(int page, int size){
+        Pageable pageable = PageRequest.of(page-1, size);
+        List<Category> resultCategory = cr.findAll(pageable).getContent();
+        if (resultCategory.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No categories found on this page ");
+        }
+       return resultCategory;
     }
 
 
-    public Optional<Category> findByID(long id){
-            return cr.findById(id);
+    public Category gettingById(long id){
+            Category currentCategory = cr.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No data foubd for this id :"+id));
+            return currentCategory;
     }
 
-    public String addCategory(Category category){
-        cr.save(category);
-        return "Added Category";
+    public Category addingNewCategory(Category category){
+       return cr.save(category);
     }
 
-    public Category updateCategory(long categoryId, Category category){
-        Category existingCategory = cr.findById(categoryId).orElseThrow(() -> new RuntimeException("Category not found with id " + categoryId));
-        
+    public Category updatingCategory(long id, Category category){
+        Category existingCategory = cr.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found with id " + id));
         existingCategory.setCategoryName(category.getCategoryName());
-
         return cr.save(existingCategory);
     }
 
-    public void deleteCategory(long id)
+    public String deletingCategoryById(long id)
     {
-        cr.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id " + id));
+        cr.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found with id " + id));
         cr.deleteById(id);
-        System.out.println("Deleted category id :"+id);
+        return "Category Deleted Successfully Using ID";
     }
 
 

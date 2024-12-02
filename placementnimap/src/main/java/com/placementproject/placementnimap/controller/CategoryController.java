@@ -1,10 +1,10 @@
 package com.placementproject.placementnimap.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,28 +26,29 @@ public class CategoryController {
     private CategoryService cs;
 
     @GetMapping
-    public Page<Category> allCategories(@RequestParam(defaultValue="3") int page, @RequestParam(defaultValue = "2") int size) {
-         return cs.findAllCat(page, size);    
-
+    public ResponseEntity<List<Category>> gettingAllCategoryFromDatabase(@RequestParam(defaultValue="3") int page, @RequestParam(defaultValue = "2") int size) {
+         List<Category> listCategory = cs.findingAllCategpry(page, size);
+         return ResponseEntity.ok(listCategory); 
     }
 
     @GetMapping("/{di}")
-    public Optional<Category>  byIdcategories(@PathVariable long di){
-        return cs.findByID(di);
+    public Category gettingCategoryByIdFromDatabaseOptional(@PathVariable long di)
+    {
+        return cs.gettingById(di);
     }
 
     @PostMapping
-    public String addNewCategory(@RequestBody Category category){
-        return cs.addCategory(category);
+    public Category addingNewCategoryIntoDatabase(@RequestBody Category category){
+        return cs.addingNewCategory(category);
     }
 
     @PutMapping("/{di}")
-    public Category updateCategories(@PathVariable long di, @RequestBody Category category){
-        return cs.updateCategory(di, category);
+    public Category updatingCategoryFromDatabase(@PathVariable long di, @RequestBody Category category){
+        return cs.updatingCategory(di, category);
     }
 
     @DeleteMapping("/{di}")
-    public void deleteCategories(@PathVariable long di){
-        cs.deleteCategory(di);
+    public String deletingCategoryByIdFromDatabase(@PathVariable long di){
+        return cs.deletingCategoryById(di);
     }
 }

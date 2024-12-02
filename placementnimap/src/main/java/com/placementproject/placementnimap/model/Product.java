@@ -20,23 +20,27 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="product_id")
     private long productId;
-
-    @Column(name="product_name", nullable=false, length=100)
     private String productName;
-
-    @Column(name="price")
-    private double  productPrice;
+    private double productPrice;
     
     @ManyToOne
-    @JoinColumn(name="category_id")
+    @JoinColumn(name="category_id",nullable=false)
     @JsonBackReference
     private Category category;
 
-    
+    public Product() {
+    }
+    public Product(long productId, String productName, double productPrice, Category category) {
+        this.productId = productId;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.category = category;
+    }
+
     public long getProductId() {
         return productId;
     }
-    public void setProductId(int productId) {
+    public void setProductId(long productId) {
         this.productId = productId;
     }
     public String getProductName() {
@@ -54,22 +58,16 @@ public class Product {
     public Category getCategory() {
         return category;
     }
+
     public void setCategory(Category category) {
         this.category = category;
     }
+    
 
-    public Product() {
-    }
-    public Product(long productId, String productName, double productPrice, Category category) {
-        this.productId = productId;
-        this.productName = productName;
-        this.productPrice = productPrice;
-        this.category = category;
-    }
     @Override
     public String toString() {
         return "Product [productId=" + productId + ", productName=" + productName + ", productPrice=" + productPrice
                 + ", category=" + category + "]";
-    }
+    }   
 }
 

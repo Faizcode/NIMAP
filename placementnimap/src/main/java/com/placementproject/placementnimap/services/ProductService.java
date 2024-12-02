@@ -1,52 +1,61 @@
 package com.placementproject.placementnimap.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.placementproject.placementnimap.model.Product;
 import com.placementproject.placementnimap.repository.ProductRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class ProductService {
     
     @Autowired
     private ProductRepository pr;
 
    
-    public List<Product> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size,Sort.by("productId"));
-        Page<Product> listProduct = pr.findAll(pageable);
-        return listProduct.getContent();
+    public List<Product> gettingAllProduct(int page, int size) {
+        Pageable pageable = PageRequest.of(page-1, size);
+        List<Product> resultProduct = pr.findAll(pageable).getContent();
+        if(resultProduct.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Product Found on this page kindly change the page");
+        }
+        return resultProduct;
     }
 
-    public Optional<Product> findByID(long id){
-            return pr.findById(id);
-        
+    public Product gettingProductById(long id){
+        return pr.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "The Product data is not found for id: "+id)); 
     }
 
-    public String addProduct(Product product){
-        pr.save(product);
-        return "product Added";
+    public Product addingProduct(Product product){
+        return pr.save(product);
     }
 
-    public Product updateProduct(long productId, Product product){
-        Product existingProduct = pr.findById(productId).orElseThrow(() -> new RuntimeException("Product not found with id " + productId));
-        
+    public Product updatingProduct(long id, Product product){
+        Product existingProduct = pr.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id :" + id)); 
         existingProduct.setProductName(product.getProductName());
+        existingProduct.setProductPrice(product.getProductPrice());
+        existingProduct.setCategory(product.getCategory());
 
         return pr.save(existingProduct);
     }
 
-    public void deleteProduct(long id)
+    public String deletingProduct(long id)
     {
-        pr.findById(id).orElseThrow(() -> new RuntimeException("Product not found with id " + id));
+        pr.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id: " + id));
         pr.deleteById(id);
+        return "Product Deleted Successfully Using Id";
     }
 }
